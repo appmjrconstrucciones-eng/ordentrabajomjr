@@ -70,7 +70,7 @@ export default function WorkOrderDetail({
       <div>
         <h2 className="text-xs font-black text-white/25 uppercase tracking-widest mb-3">Etapas de Producción</h2>
         <Accordion className="space-y-2">
-          {wo.stages.map((stage) => {
+          {wo.stages.map((stage: any) => {
             const s = STAGE_STATUS[stage.status] ?? STAGE_STATUS.PENDING;
             return (
               <AccordionItem
@@ -96,7 +96,7 @@ export default function WorkOrderDetail({
 
                 <AccordionContent className="px-4 pb-4 pt-0 border-t border-white/5 bg-black/20">
                   <div className="space-y-3 mt-3">
-                    {collaborators.map((collab) => {
+                    {collaborators.map((collab: any) => {
                       const isTiming = activeLogs[collab.id];
                       return (
                         <div

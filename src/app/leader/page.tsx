@@ -11,7 +11,7 @@ const STATUS_MAP: Record<string, { label: string; cls: string; dot: string }> = 
 };
 
 export default function LeaderDashboard() {
-  const assignedOTs = MOCK_WORK_ORDERS.filter((wo) => wo.leaderId === "ldr1");
+  const assignedOTs = MOCK_WORK_ORDERS.filter((wo: any) => wo.leaderId === "ldr1");
 
   return (
     <div className="flex flex-col gap-6">
@@ -21,7 +21,7 @@ export default function LeaderDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {assignedOTs.map((wo) => {
+        {assignedOTs.map((wo: any) => {
           const s = STATUS_MAP[wo.status] ?? STATUS_MAP.PENDING;
           return (
             <div
