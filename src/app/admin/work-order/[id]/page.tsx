@@ -242,7 +242,7 @@ export default function WorkOrderPage({ params }: { params: Promise<{ id: string
     return acc;
   }, {});
 
-  const sortedSpecialties = Object.entries(laborBySpecialty).sort((a, b) => b[1].cost - a[1].cost);
+  const sortedSpecialties = Object.entries(laborBySpecialty).sort((a: any, b: any) => b[1].cost - a[1].cost);
 
   return (
     <div className="flex flex-col gap-8 pb-20">
