@@ -1,6 +1,6 @@
-export const MOCK_USERS = [];
-export const MOCK_PROJECTS = [];
-export const MOCK_WORK_ORDERS = [];
+export const MOCK_USERS: any[] = [];
+export const MOCK_PROJECTS: any[] = [];
+export const MOCK_WORK_ORDERS: any[] = [];
 export const MOCK_KPI_DATA = {
   totalActiveOTs: 0,
   totalSteelProcessedKg: 0,
