@@ -359,7 +359,7 @@ export default function WorkOrderPage({ params }: { params: Promise<{ id: string
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 rounded-[1.5rem] bg-white/[0.03] border border-dashed border-white/10 items-end">
                         <div className="md:col-span-6 space-y-2">
                              <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-1">Seleccionar Insumo (Maestro)</label>
-                             <Select onValueChange={setSelectedSupplyId} value={selectedSupplyId}>
+                             <Select onValueChange={(v: string | null) => setSelectedSupplyId(v || "")} value={selectedSupplyId}>
                                 <SelectTrigger className="bg-[#1B2031] border-white/10 text-white rounded-xl h-11 text-xs">
                                     <SelectValue placeholder="Elegir material...">
                                         {selectedSupplyId ? (supplies.find(s => s.id === selectedSupplyId)?.name || "Elegir material...") : "Elegir material..."}
@@ -507,7 +507,7 @@ export default function WorkOrderPage({ params }: { params: Promise<{ id: string
                     </div>
                 
                 {ot.status !== 'COMPLETED' && (
-                    <Select onValueChange={addCollaborator}>
+                    <Select onValueChange={(v: string | null) => addCollaborator(v || "")}>
                         <SelectTrigger className="w-full bg-white/5 border-white/10 text-white rounded-2xl h-14 text-xs font-black uppercase tracking-[0.2em] shadow-inner">
                             <SelectValue placeholder="+ Vincular Personal al Proyecto" />
                         </SelectTrigger>
