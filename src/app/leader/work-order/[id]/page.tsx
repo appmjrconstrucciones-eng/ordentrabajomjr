@@ -69,7 +69,7 @@ export default function WorkOrderDetail({
       {/* ── Stages Accordion ── */}
       <div>
         <h2 className="text-xs font-black text-white/25 uppercase tracking-widest mb-3">Etapas de Producción</h2>
-        <Accordion type="single" collapsible className="space-y-2">
+        <Accordion className="space-y-2">
           {wo.stages.map((stage) => {
             const s = STAGE_STATUS[stage.status] ?? STAGE_STATUS.PENDING;
             return (
