@@ -5,6 +5,7 @@ import { db, dbRef } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilePlus, Search, HardHat, Package, User, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
+import { Contract } from "@/types/contract";
 import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
