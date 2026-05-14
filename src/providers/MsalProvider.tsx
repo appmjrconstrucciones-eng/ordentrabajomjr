@@ -11,12 +11,22 @@ export function MsalProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const init = async () => {
       try {
+        console.log("[MSAL] Inicializando instancia...");
         await msalInstance.initialize();
-        // Procesa el resultado de una redirección si existe
-        await msalInstance.handleRedirectPromise();
+        
+        console.log("[MSAL] Procesando respuesta de redirección...");
+        const result = await msalInstance.handleRedirectPromise();
+        
+        if (result) {
+          console.log("[MSAL] ¡Redirección procesada con éxito!", result.account?.username);
+        } else {
+          console.log("[MSAL] No hay respuesta de redirección pendiente.");
+        }
+        
         setInitialized(true);
       } catch (e) {
-        console.error("MSAL Init Error:", e);
+        console.error("[MSAL] Error crítico en inicialización:", e);
+        setInitialized(true); // Permitir que la app cargue aunque falle MSAL
       }
     };
     init();
