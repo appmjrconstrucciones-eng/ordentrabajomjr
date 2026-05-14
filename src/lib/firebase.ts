@@ -23,7 +23,7 @@ const referenceConfig = {
   appId:             "1:908880282094:web:9df1e05cf020cd8c0f4eff",
 };
 
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
 
 // Inicialización
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
@@ -33,3 +33,4 @@ export const db = getFirestore(app);
 export const dbRef = getFirestore(refApp);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+export const microsoftProvider = new OAuthProvider("microsoft.com");

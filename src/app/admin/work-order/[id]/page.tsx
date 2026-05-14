@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useOneDrive } from "@/hooks/useOneDrive";
 
 export default function WorkOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -28,6 +29,7 @@ export default function WorkOrderPage({ params }: { params: Promise<{ id: string
 
   const ot = workOrders.find(w => w.id === id);
   const [updating, setUpdating] = useState(false);
+  const { uploadBlueprint, isUploading, login: loginOneDrive, user: oneDriveUser } = useOneDrive();
   
   // Estados para el registro de insumos
   const [selectedSupplyId, setSelectedSupplyId] = useState<string>("");
@@ -214,6 +216,29 @@ export default function WorkOrderPage({ params }: { params: Promise<{ id: string
     });
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Solo permitir PDFs
+    if (file.type !== "application/pdf") {
+      alert("Por favor sube solo archivos PDF.");
+      return;
+    }
+
+    try {
+      const url = await uploadBlueprint(file, id);
+      if (url) {
+        await updateDoc(doc(db, "work_orders", id), {
+          blueprintUrl: url,
+          blueprintName: file.name
+        });
+      }
+    } catch (error) {
+      console.error("Error uploading blueprint:", error);
+    }
+  };
+
   const activeOTCollaborators = collaborators.filter(c => c.role === "COLLABORATOR");
   
   const totalInsumos = ot.consumedSupplies?.reduce((acc: number, s: any) => acc + (s.totalCost || 0), 0) || 0;
@@ -328,14 +353,28 @@ export default function WorkOrderPage({ params }: { params: Promise<{ id: string
                             <p className="text-[9px] text-white/20 uppercase font-black tracking-widest">Fecha Inicio</p>
                             <p className="text-xs text-white/60 font-bold">{new Date(ot.createdAt).toLocaleDateString()}</p>
                         </div>
-                        {ot.blueprintUrl && (
-                            <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
-                                <p className="text-[9px] text-white/20 uppercase font-black tracking-widest">Planos</p>
+                        <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
+                            <p className="text-[9px] text-white/20 uppercase font-black tracking-widest">Planos</p>
+                            {ot.blueprintUrl ? (
                                 <a href={ot.blueprintUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-400 font-bold hover:underline flex items-center gap-1 group">
                                     <Package size={12} className="text-blue-400/50 group-hover:text-blue-400 transition-colors" /> Ver Plano <ExternalLink size={10} />
                                 </a>
-                            </div>
-                        )}
+                            ) : (
+                                <div className="relative">
+                                    {!oneDriveUser ? (
+                                        <button onClick={loginOneDrive} className="text-[10px] text-amber-400 font-bold hover:underline">
+                                            Conectar OneDrive
+                                        </button>
+                                    ) : (
+                                        <label className="cursor-pointer text-[10px] text-blue-400 font-bold hover:underline flex items-center gap-1">
+                                            {isUploading ? <Loader2 size={10} className="animate-spin" /> : <Plus size={10} />}
+                                            <span>Subir PDF</span>
+                                            <input type="file" className="hidden" accept=".pdf" onChange={handleFileUpload} disabled={isUploading} />
+                                        </label>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

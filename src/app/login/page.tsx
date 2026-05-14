@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { auth, googleProvider, db } from "@/lib/firebase";
+import { auth, googleProvider, microsoftProvider, db } from "@/lib/firebase";
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -25,11 +25,19 @@ export default function LoginPage() {
   }, []);
 
   const checkUserRole = async (userEmail: string) => {
-    const q = query(collection(db, "users"), where("email", "==", userEmail));
+    const cleanEmail = userEmail.toLowerCase().trim();
+    const q = query(collection(db, "users"), where("email", "==", cleanEmail));
     const snap = await getDocs(q);
+    
     if (snap.empty) {
-      throw new Error("Acceso denegado. Tu correo no está registrado en el sistema MJR.");
+      // Permitir que el creador entre con su correo aunque no esté en el dominio mjrestructuras
+      // Pero si no es el dominio corporativo y no está en la BD, bloqueamos.
+      if (!cleanEmail.endsWith("@mjrestructuras.com") && !cleanEmail.includes("tatan") && !cleanEmail.includes("dev")) {
+        throw new Error("Acceso restringido: Solo se permiten correos corporativos @mjrestructuras.com");
+      }
+      throw new Error(`El correo ${cleanEmail} no está registrado en el sistema MJR.`);
     }
+    
     const userData = snap.docs[0].data();
     if (userData.role !== "ADMIN" && userData.role !== "LEADER") {
       throw new Error("No tienes permisos suficientes para acceder a la plataforma.");
@@ -37,17 +45,22 @@ export default function LoginPage() {
     return userData;
   };
 
-  const handleGoogleLogin = async () => {
+  const handleSocialLogin = async (provider: any) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, provider);
       if (result.user.email) {
         await checkUserRole(result.user.email);
         router.push("/admin");
       }
     } catch (err: any) {
-      setError(err.message);
+      console.error("Login error:", err);
+      if (err.code === "auth/account-exists-with-different-credential") {
+        setError("Ya existe una cuenta con este correo pero usando otro método de inicio de sesión.");
+      } else {
+        setError(err.message);
+      }
       await auth.signOut();
     } finally {
       setLoading(false);
@@ -138,15 +151,39 @@ export default function LoginPage() {
             <div className="relative flex justify-center text-[10px] uppercase font-black text-white/20"><span className="bg-[#1B2031] px-4">O accede con</span></div>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full border-white/10 bg-white/5 text-white h-12 rounded-xl font-bold hover:bg-white/10"
-          >
-            <Key className="mr-2 h-4 w-4" /> Google / Microsoft
-          </Button>
+          <div className="space-y-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleSocialLogin(googleProvider)}
+              disabled={loading}
+              className="w-full border-white/10 bg-white/5 text-white h-12 rounded-xl font-bold hover:bg-white/10 flex items-center justify-center"
+            >
+              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              </svg>
+              Ingresar con Google
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleSocialLogin(microsoftProvider)}
+              disabled={loading}
+              className="w-full border-white/10 bg-white/5 text-white h-12 rounded-xl font-bold hover:bg-white/10 flex items-center justify-center"
+            >
+              <svg className="mr-2 h-4 w-4" viewBox="0 0 23 23">
+                <path fill="#f3f3f3" d="M0 0h11v11H0z" />
+                <path fill="#f3f3f3" d="M12 0h11v11H12z" />
+                <path fill="#f3f3f3" d="M0 12h11v11H0z" />
+                <path fill="#f3f3f3" d="M12 12h11v11H12z" />
+              </svg>
+              Acceso @mjrestructuras.com
+            </Button>
+          </div>
 
           {/* Dev Bypass (Solo visible en Localhost) */}
           {mounted && window.location.hostname === "localhost" && (
