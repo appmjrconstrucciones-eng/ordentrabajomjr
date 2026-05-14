@@ -80,6 +80,16 @@ export const useOneDrive = () => {
         isUploading,
         uploadError,
         user: accounts[0] || null,
-        login: () => instance.loginPopup(loginRequest)
+        login: () => {
+            if (!process.env.NEXT_PUBLIC_AZURE_CLIENT_ID || !process.env.NEXT_PUBLIC_AZURE_TENANT_ID) {
+                alert("Error: Faltan las variables de configuración de Azure en Vercel.");
+                console.error("Faltan variables de entorno de Azure");
+                return;
+            }
+            return instance.loginPopup(loginRequest).catch(e => {
+                console.error("Error en loginPopup:", e);
+                alert("Error al abrir Microsoft: " + e.message);
+            });
+        }
     };
 };
