@@ -11,7 +11,17 @@ export const msalConfig: Configuration = {
   },
 };
 
-export const msalInstance = new PublicClientApplication(msalConfig);
+// Aseguramos una instancia única (Singleton) para evitar problemas en Next.js
+let msalInstance: PublicClientApplication;
+
+if (typeof window !== "undefined") {
+    msalInstance = new PublicClientApplication(msalConfig);
+} else {
+    // Instancia dummy para el servidor
+    msalInstance = new PublicClientApplication(msalConfig);
+}
+
+export { msalInstance };
 
 export const loginRequest = {
   scopes: ["User.Read", "Files.ReadWrite"],

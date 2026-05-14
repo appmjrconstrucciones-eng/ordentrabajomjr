@@ -12,6 +12,8 @@ export function MsalProvider({ children }: { children: React.ReactNode }) {
     const init = async () => {
       try {
         await msalInstance.initialize();
+        // Procesa el resultado de una redirección si existe
+        await msalInstance.handleRedirectPromise();
         setInitialized(true);
       } catch (e) {
         console.error("MSAL Init Error:", e);

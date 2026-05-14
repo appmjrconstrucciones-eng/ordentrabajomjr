@@ -81,8 +81,8 @@ export const useOneDrive = () => {
         uploadError,
         user: accounts[0] || null,
         login: () => {
-            return instance.loginPopup(loginRequest).catch(e => {
-                console.error("Error en loginPopup:", e);
+            return instance.loginRedirect(loginRequest).catch(e => {
+                console.error("Error en loginRedirect:", e);
             });
         }
     };
