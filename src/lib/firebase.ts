@@ -34,3 +34,8 @@ export const dbRef = getFirestore(refApp);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const microsoftProvider = new OAuthProvider("microsoft.com");
+
+// Forzar el uso del Tenant ID específico de MJR para evitar el error de /common
+microsoftProvider.setCustomParameters({
+  tenant: "aa570cd6-edb6-4e89-a0a6-fbeef2ae1a9f"
+});
